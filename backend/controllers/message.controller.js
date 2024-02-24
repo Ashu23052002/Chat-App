@@ -30,12 +30,35 @@ export const sendMessage = async (req, res) => {
     // await conversation.save();
     // await newMessage.save();
 
-    // this willl run parallel
+    // this will run parallel
+    /*
+Save changes to the database: It saves both the updated conversation and the new message to the database. This is done using Promise.all() to execute both save operations concurrently, which can improve performance.
+    */
     await Promise.all([conversation.save(), newMessage.save()]);
 
     res.status(201).json(newMessage);
   } catch (error) {
     console.log("Error in sendMessage controller: ", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const getMessages = async (req, res) => {
+  try {
+    const { id: userToChatId } = req.params;
+    const senderId = req.user._id;
+
+    const conversation = await Conversation.findOne({
+      participants: { $all: [senderId, userToChatId] },
+    }).populate("messages"); // NOT REFERENCE BUT ACTUAL MESSAGE
+
+    if (!conversation) return res.status(200).json([]);
+
+    const messages = conversation.messages;
+
+    res.status(200).json(messages);
+  } catch (error) {
+    console.log("Error in getMessage controller: ", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
