@@ -12,7 +12,7 @@ const MessageInput = () => {
     e.preventDefault();
     if (!message) return;
     await sendMessage(message);
-    setMessage("");
+    setMessage(""); // if msg successfully sent then set it to empty
   };
 
   return (
