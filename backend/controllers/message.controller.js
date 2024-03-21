@@ -1,5 +1,6 @@
 import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
+import { getReceiverSocketId, io } from "../socket/socket.js";
 
 export const sendMessage = async (req, res) => {
   try {
@@ -35,6 +36,13 @@ export const sendMessage = async (req, res) => {
 Save changes to the database: It saves both the updated conversation and the new message to the database. This is done using Promise.all() to execute both save operations concurrently, which can improve performance.
     */
     await Promise.all([conversation.save(), newMessage.save()]);
+
+    // socket io function here
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      // io.to(<socket.id>).emit() to send events to specific client
+      io.to(receiverSocketId).emit("newMessage", newMessage);
+    }
 
     res.status(201).json(newMessage);
   } catch (error) {
