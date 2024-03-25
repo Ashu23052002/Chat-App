@@ -17,7 +17,8 @@ const __dirname = path.resolve();
 dotenv.config();
 
 // middlewares
-app.use(express.json()); // to parse the incoming request with JSON payloads (from req.body)
+app.use(express.json({ limit: "20kb" })); // to parse the incoming request with JSON payloads (from req.body)
+app.use(express.urlencoded());
 app.use(cookieParser()); // can use store information in cookie
 
 app.use("/api/auth", authRoutes); // app.use([path] , middlewareFunction)
